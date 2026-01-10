@@ -1,0 +1,174 @@
+{
+  "name": "WhatsAppBot N8N Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "custom_wa_bot",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        160
+      ],
+      "id": "1ed35f00-d97d-4710-af79-1e20454e07d0",
+      "name": "Webhook",
+      "webhookId": "3aadd267-9941-4dcd-b6e7-ac55d5fd24b8"
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "={{ $json.body.msg }}",
+        "options": {
+          "systemMessage": "=You are a stand-up comedian, entertaining users with your wit and humor. Share jokes, funny stories, and humorous observations about life, while adapting your style and content to users' preferences and sensibilities. Encourage laughter and lightheartedness while maintaining a respectful and inclusive tone."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8e56a5ba-29d1-4a5c-a5d4-2766e55eb710",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{  $json }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        0
+      ],
+      "id": "687cbcfc-0b80-4655-b6eb-a8d2c76ea6b9",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.body.from }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        256
+      ],
+      "id": "9b7971da-ea56-4052-bf9d-201879a7a298",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        272,
+        208
+      ],
+      "id": "556bac1e-8849-4cef-a054-69a88def3607",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "model": "mistralai/mistral-small-3.1-24b-instruct:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        256
+      ],
+      "id": "31003a7b-86d1-4131-bcf4-5c9e22a6c3de",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "qLnSVL7Ni9NiA4jn",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "5478530a-c5c9-4018-9b88-a5e3ce3365eb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5b6dbddd71ee2ea1f3a0c54a1c8c8c2c84ad3eaffe80cc5e5a2ad984fced6546"
+  },
+  "id": "xTCwYJo42xqPeFDV",
+  "tags": []
+}
